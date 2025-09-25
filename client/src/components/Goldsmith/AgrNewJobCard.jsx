@@ -93,6 +93,10 @@ function AgrNewJobCard({
     val // its used for set three digit after point value
   ) => (isNaN(parseFloat(val)) ? "" : parseFloat(val).toFixed(3));
 
+  const calculateFinalPurity=(p,ft)=>
+    !isNaN(p) && !isNaN(ft)
+      ? ((parseFloat(p) / parseFloat(ft)) * 100).toFixed(3)
+      : "";
   const calculatePurity = (w, t) =>
     !isNaN(w) && !isNaN(t)
       ? ((parseFloat(w) * parseFloat(t)) / 100).toFixed(3)
@@ -135,6 +139,11 @@ function AgrNewJobCard({
       parseFloat(copy[i].weight),
       parseFloat(copy[i].touch)
     );
+     copy[i].finalPurity = calculateFinalPurity(
+      parseFloat(copy[i].purity),
+      parseFloat(copy[i].finaltouch)
+    );
+    copy[i].copperPurity=copy[i].finalPurity-parseFloat(copy[i].weight)
 
     // STEP 6: set state
     setGivenGold(copy);
@@ -538,6 +547,41 @@ function AgrNewJobCard({
                         readOnly
                         placeholder="Purity"
                         value={format(row.purity)}
+                        className="input-read-only"
+                      />
+                        <span className="operator">÷</span>
+                    <div>
+                        <input
+                          disabled={row.id ? true : false}
+                          type="number"
+                          placeholder="Final Touch"
+                          value={row.finaltouch}
+                          onChange={(e) =>
+                            handleGoldRowChange(i, "finaltouch", e.target.value)
+                          }
+                          className="input"
+                          onWheel={(e) => e.target.blur()}
+                        />
+                        <br></br>
+                        {/* {givenGoldErrors[i]?.weight && (
+                          <span className="error">
+                            {givenGoldErrors[i]?.weight}
+                          </span>
+                        )} */}
+                      </div>
+                        <span className="operator">=</span>
+                        <input
+                        type="text"
+                        readOnly
+                        placeholder="Final Purity"
+                        value={format(row.finalPurity)}
+                        className="input-read-only"
+                      />
+                      <input
+                        type="text"
+                        readOnly
+                        placeholder="Copper Purity"
+                        value={format(row.copperPurity)}
                         className="input-read-only"
                       />
                       {!row.id && (

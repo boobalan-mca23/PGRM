@@ -38,8 +38,8 @@ function JobCardDetails() {
   const [jobCardLength, setJobCardLength] = useState(0);
   const [description, setDescription] = useState("");
   const [givenGold, setGivenGold] = useState([
-    { touchId:"",weight: "", touch: "", purity: "" },
-  ]);
+     { weight: "", touch: "", purity: "" ,finaltouch:"",finalPurity:"",copperPurity:""},
+   ]);
   const [itemDelivery, setItemDelivery] = useState([
     {
       itemName: "",
@@ -125,7 +125,7 @@ const currentPageTotal = paginatedData.reduce(
     setOpen(false);
     fetchRawGold();
     setDescription("");
-    setGivenGold([{ weight: "", touch: "", purity: "" }]);
+    setGivenGold([ { weight: "", touch: "", purity: "" ,finaltouch:"",finalPurity:"",copperPurity:""},]);
     setItemDelivery([
       {
       itemName: "",
@@ -192,7 +192,7 @@ const currentPageTotal = paginatedData.reduce(
         }
       );
       handleCloseJobcard();
-      setGivenGold([{ weight: "", touch: "", purity: "" }]);
+      setGivenGold([ { weight: "", touch: "", purity: "" ,finaltouch:"",finalPurity:"",copperPurity:""},]);
       setDescription("");
       setJobCards(response.data.allJobCards);
       console.log('response.data.jobCardLength',response.data.jobCardLength)
@@ -239,7 +239,7 @@ const currentPageTotal = paginatedData.reduce(
         }
       );
       handleCloseJobcard();
-      setGivenGold([{ weight: "", touch: "", purity: "" }]);
+      setGivenGold([ { weight: "", touch: "", purity: "" ,finaltouch:"",finalPurity:"",copperPurity:""},]);
       setDescription("");
       setItemDelivery([
         {

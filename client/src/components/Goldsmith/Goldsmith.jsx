@@ -35,7 +35,7 @@ const Goldsmith = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [description, setDescription] = useState("");
   const [givenGold, setGivenGold] = useState([
-    { weight: "", touch: "", purity: "" },
+    { weight: "", touch: "", purity: "" ,finaltouch:"",finalPurity:"",copperPurity:""},
   ]);
 
   const [itemDelivery, setItemDelivery] = useState([
@@ -139,7 +139,7 @@ const handleCloseJobcard = () => {
     setOpen(false);
     setEdit(false)
     setDescription("")
-    setGivenGold([{ weight: "", touch: "", purity: "" }])
+    setGivenGold([ { weight: "", touch: "", purity: "" ,finaltouch:"",finalPurity:"",copperPurity:""},])
     setItemDelivery([{
       itemName: "",
       ItemWeight: "",
@@ -189,7 +189,7 @@ const handleCloseJobcard = () => {
         }
       );
       handleCloseJobcard();
-      setGivenGold([{ weight: "", touch: "", purity: "" }])
+      setGivenGold([ { weight: "", touch: "", purity: "" ,finaltouch:"",finalPurity:"",copperPurity:""},])
       setDescription("")
       setItemDelivery( [{
       itemName: "",

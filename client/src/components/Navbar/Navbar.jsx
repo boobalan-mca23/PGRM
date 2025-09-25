@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiLogOut, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import NotificationBell from "../Notification/Notification";
-import logo from "../../Assets/agrLogo.png";
+// import logo from "../../Assets/paarvai.png";
 const Navbar = () => {
   const navigate = useNavigate();
   const [showReports, setShowReports] = useState(false);
@@ -74,8 +74,8 @@ const Navbar = () => {
     <div style={navContainer}>
       <div style={navLeft}>
         <div style={logoContainer}>
-          <img style={logoImg} src={logo} alt="Agrlogo"></img>
-          <span style={logoText}>AGR</span>
+          {/* <img style={logoImg} src={logo} alt="Agrlogo"></img> */}
+          <span style={logoText}>PAARVAI JEWELLERS</span>
         </div>
 
         {[

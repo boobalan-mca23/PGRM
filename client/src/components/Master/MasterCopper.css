@@ -1,0 +1,76 @@
+
+.mastercopper-container {
+  display: flex;
+  align-items: flex-start;
+  padding: 20px;
+  gap: 60px;
+}
+
+.add-copper-form {
+  width: 25%;  
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+.add-copper-form h2 {
+  margin-bottom: 10px;
+}
+
+.add-copper-form label {
+  display: block;
+  margin: 10px 0 5px;
+  font-weight: bold;
+}
+
+.add-copper-form input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.add-copper-form button {
+  width: 100%;
+  padding: 10px;
+  background-color: #1DA3A3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-copper-form button:hover {
+  background-color: #1DA3A3;
+}
+
+
+.copper-list {
+  width: 30%;  
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.copper-list h2 {
+  margin-bottom: 10px;
+}
+
+.copper-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.copper-list th, .copper-list td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+.copper-list th {
+  background: #1DA3A3;
+  color: white;
+}

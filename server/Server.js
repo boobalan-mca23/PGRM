@@ -22,6 +22,7 @@ const billRoutes=require("./Routes/bill.routes")
 const receiptRoutes=require("./Routes/receipt.routes");
 const masterWastageRoutes = require("./Routes/masterwastage.routes")
 const expenseRoutes=require("./Routes/expense.routes")
+const copper=require("./Routes/copper.routes")
 const path = require("path");
  
 require("dotenv").config();
@@ -57,6 +58,7 @@ app.use("/api/productStock",productStock);
 app.use("/api/bill",billRoutes)
 app.use("/api/receipt",receiptRoutes);
 app.use("/api/expense",expenseRoutes);
+app.use("/api/copper",copper)
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
  
