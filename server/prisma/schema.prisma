@@ -1,0 +1,414 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Customer {
+  id             Int              @id @default(autoincrement())
+  name           String
+  phone          String?
+  address        String?
+  createdAt      DateTime         @default(now())
+  transactions   Transaction[]
+  customerOrders customer_order[]
+  bill           Bill[]
+  billReceive    billReceived[]
+  receiptVoucher   receiptVoucher[]
+  customerBillBalance customerBillBalance?
+            
+}
+
+model MasterItem {
+  id        Int      @id @default(autoincrement())
+  itemName  String
+  createdAt DateTime @default(now())
+  
+}
+
+model MasterTouch {
+  id             Int    @id @default(autoincrement())
+  touch          Float
+  rawGoldStock   RawgoldStock[]
+  createdAt DateTime @default(now())
+}
+model masterWastage {
+  id           Int    @id @default(autoincrement())
+  wastage      Float
+  createdAt    DateTime @default(now())
+}
+
+
+model JewelStock {
+  id          Int      @id @default(autoincrement())
+  jewelName   String
+  weight      Float
+  stoneWeight Float
+  finalWeight Float
+  touch       Float
+  purityValue Float
+  createdAt   DateTime @default(now())
+}
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  date        DateTime
+  type        String
+  logId       Int?
+  gold        Float?
+  amount      Float?
+  goldRate    Float?
+  purity      Float?
+  touch       Float?
+  rawGoldLogs RawGoldLogs?  @relation(fields: [logId], references: [id])
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId Int
+  createdAt  DateTime @default(now())
+}
+
+model Entry {
+  id         Int      @id @default(autoincrement())
+  date       DateTime
+  type       String
+  cashAmount Float?
+  goldValue  Float?
+  touch      Float?
+  purity     Float?
+  goldRate   Float?
+  createdAt  DateTime @default(now())
+}
+
+model customer_order {
+  id             Int @id @default(autoincrement())
+  customer_id    Int
+  order_group_id Int
+  item_name     String
+  description   String
+  weight        Float
+  image         String?
+  due_date      DateTime?
+  status        String                    @default("Pending")
+  worker_name   String?
+  created_at    DateTime                  @default(now())
+  updatedAt     DateTime                  @default(now())
+  customers     Customer                  @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  productImages product_multiple_images[]
+}
+
+model product_multiple_images {
+  id                   Int            @id @default(autoincrement())
+  customer_order_id    Int
+  filename             String
+  customerOrderDetails customer_order @relation(fields: [customer_order_id], references: [id], onDelete: Cascade)
+}
+
+model MasterBullion {
+  id        Int               @id @default(autoincrement())
+  name      String
+  phone     String?
+  address   String?
+  purchases BullionPurchase[]
+}
+
+model BullionPurchase {
+  id           Int           @id @default(autoincrement())
+  bullion      MasterBullion @relation(fields: [bullionId], references: [id])
+  bullionId    Int
+  grams        Float
+  touch        Float?
+  purity       Float?
+  rate         Float
+  amount       Float
+  balance      Float
+  createdAt    DateTime      @default(now())
+  givenDetails GivenDetail[]
+}
+
+model GivenDetail {
+  id              Int             @id @default(autoincrement())
+  amount          Float
+  grams           Float
+  touch           Float?
+  purity          Float?
+  bullionPurchase BullionPurchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  purchaseId      Int
+}
+
+model Goldsmith {
+  id         Int            @id @default(autoincrement())
+  name       String
+  phone      String?
+  address    String?
+  jobcards   Jobcard[]       
+  givenGold  givenGold[]      
+  deliveries itemDelivery[]   
+  received   Receivedsection[]
+  totals     Total[]   
+  repairs    Repair[]
+  summaries  Balances[]       
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @default(now())
+}
+
+model Jobcard {
+  id            Int          @id @default(autoincrement())
+  goldsmithId   Int
+  goldsmith     Goldsmith    @relation(fields: [goldsmithId], references: [id])
+  description   String?
+  stockIsMove   Boolean?   @default(false)
+  givenGold     givenGold[]
+  deliveries    itemDelivery[]  
+  received      Receivedsection[]
+  productStock  ProductStock[]
+  total         Total[] 
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @default(now())
+}
+model givenGold{
+  id              Int          @id @default(autoincrement())
+  goldsmithId     Int?
+  jobcardId       Int?
+  logId           Int?
+  weight          Float?
+  touch           Float?
+  purity          Float?
+  goldsmith       Goldsmith?    @relation(fields: [goldsmithId], references: [id])
+  jobcard         Jobcard?      @relation(fields: [jobcardId], references: [id])
+  rawGoldLogs     RawGoldLogs?  @relation(fields: [logId], references: [id])
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @default(now())
+}
+
+model itemDelivery {
+  id               Int           @id @default(autoincrement())
+  itemName         String?
+  itemWeight       Float?
+  count            Int?
+  touch            Float?
+  sealName         String?
+  netWeight        Float?
+  wastageType      String?
+  wastageValue     Float?
+  wastagePure      Float?
+  finalPurity      Float?
+  goldsmithId      Int?
+  goldsmith        Goldsmith? @relation(fields: [goldsmithId], references: [id])
+  jobcardId        Int?
+  jobcard          Jobcard?   @relation(fields: [jobcardId], references: [id])
+  deduction        deduction[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @default(now())
+}
+model deduction{
+  id                 Int           @id @default(autoincrement())
+  type               String?
+  deliveryId         Int
+  weight             Float?
+  stoneWt            Float?
+  itemDelivery       itemDelivery  @relation(fields: [deliveryId ], references: [id])
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @default(now())
+
+}
+model Total {
+  id              Int         @id @default(autoincrement())
+  jobcardId       Int?
+  jobcard         Jobcard?      @relation(fields: [jobcardId], references: [id])
+  goldsmithId     Int
+  goldsmith       Goldsmith   @relation(fields: [goldsmithId], references: [id])
+  givenTotal      Float?
+  deliveryTotal   Float?
+  stoneTotalWt    Float?
+  openingBalance  Float?
+  jobCardBalance  Float?
+  receivedTotal   Float?
+  isFinished      String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @default(now())
+}
+
+model Receivedsection {
+  id          Int       @id @default(autoincrement())
+  weight      Float?
+  touch       Float?
+  purity      Float?
+  logId       Int?
+  jobcardId   Int    
+  goldsmithId Int
+  rawGoldLogs RawGoldLogs? @relation(fields: [logId], references: [id])
+  jobcard     Jobcard?  @relation(fields: [jobcardId], references: [id])
+  goldsmith   Goldsmith? @relation(fields: [goldsmithId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now())
+}
+model RawgoldStock{
+  id          Int           @id @default(autoincrement())
+  touchId     Int
+  touch       Float?
+  weight      Float?
+  remainingWt Float?
+  masterTouch MasterTouch?  @relation(fields: [touchId], references: [id])
+  rawGoldLogs RawGoldLogs[]
+}
+
+model RawGoldLogs{
+    id               Int           @id @default(autoincrement())
+    rawGoldStockId   Int
+    weight           Float?
+    touch            Float?
+    purity           Float?
+    rawGoldStock     RawgoldStock? @relation(fields: [rawGoldStockId], references: [id])
+    givenGold        givenGold[]
+    receivedSections Receivedsection[]
+    billReceive      billReceived[]
+    receiptVoucher   receiptVoucher[]
+    transactions     Transaction[] 
+    expenseTracker   ExpenseTracker[]
+}
+model ExpenseTracker{
+  id              Int          @id @default(autoincrement())
+  logId           Int?
+  gold            Float?
+  touch           Float?
+  purity          Float?
+  description     String?
+  rawGoldLogs     RawGoldLogs?  @relation(fields: [logId], references: [id])
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @default(now())
+}
+model Balances {
+  id                  Int         @id @default(autoincrement())
+  goldsmithId         Int
+  goldsmith           Goldsmith   @relation(fields: [goldsmithId], references: [id])
+  totalDeliveries     Int
+  totalItemWeight     Float
+  totalNetWeight      Float
+  totalPurity         Float
+  totalReceivedWeight Float
+  totalReceivedTouch  Float
+  totalReceivedPurity Float
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @default(now())
+}
+
+enum WastageType {
+  PERCENTAGE @map("%")
+  ADDITION   @map("+")
+  TOUCH      @map("Touch")
+}
+
+model Repair {
+  id            Int        @id @default(autoincrement())
+  goldsmithId   Int
+  goldsmith     Goldsmith  @relation(fields: [goldsmithId], references: [id])
+  givenWeights  Json
+  totalGiven    Float
+  itemWeights   Json
+  totalItem     Float
+  stone         Float
+  wastageType   String
+  touch         Float
+  netWeight     Float
+  createdAt     DateTime   @default(now())
+}
+
+model ProductStock{
+  id           Int   @id @default(autoincrement())
+  jobcardId    Int
+  jobcard      Jobcard?      @relation(fields: [jobcardId], references: [id])
+  itemName     String
+  itemWeight   Float
+  count        Int
+  touch        Float
+  stoneWeight  Float
+  wastageValue Float
+  netWeight    Float?
+  wastagePure  Float?
+  finalWeight  Float
+  createdAt     DateTime   @default(now())
+  }
+ model Bill{
+  id           Int @id @default(autoincrement())
+  date         DateTime ?
+  time         DateTime?
+  customer_id  Int
+  billAmount   Float
+  hallMark     Float?
+  prevHallMark Float?
+  PrevBalance  Float?
+  billDetailsprofit Float?
+  Stoneprofit  Float?
+  Totalprofit  Float?
+  cashBalance  Float?
+  customers    Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  orders       OrderItems[] 
+  billReceive  billReceived[]
+}
+model OrderItems{
+   id          Int @id @default(autoincrement())
+   billId      Int
+   bill        Bill @relation(fields:[billId],references:[id], onDelete: Cascade)
+   productName String
+   count       Int?
+   weight      Float?
+   stoneWeight Float?
+   afterWeight Float?
+   percentage  Float?
+   finalWeight Float?
+   createdAt   DateTime @default(now())
+}
+
+ model billReceived{
+   id              Int @id @default(autoincrement())
+   billId          Int?
+   bill            Bill? @relation(fields:[billId],references:[id], onDelete: Cascade)
+   customer_id     Int
+   customers       Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+   logId           Int?
+   rawGoldLogs     RawGoldLogs? @relation(fields: [logId], references: [id])
+   date            String?
+   type            String?
+   goldRate        Int?
+   gold            Float?
+   touch           Float?
+   purity          Float?
+   receiveHallMark Float?
+   amount          Float?
+   createdAt   DateTime @default(now())
+ }
+ model receiptVoucher{
+    id              Int @id @default(autoincrement())
+    customer_id     Int
+    customers       Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+    logId           Int?
+    rawGoldLogs     RawGoldLogs? @relation(fields: [logId], references: [id])
+    date            String?
+    type            String?
+    goldRate        Int?
+    gold            Float?
+    touch           Float?
+    purity          Float?
+    receiveHallMark Float?
+    amount          Float?
+    createdAt   DateTime @default(now())
+ }
+model customerBillBalance{
+  id           Int @id @default(autoincrement())
+  balance      Float?
+  hallMarkBal  Float?
+  customer_id  Int @unique
+  customers    Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+
+}
+

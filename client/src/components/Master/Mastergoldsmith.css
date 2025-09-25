@@ -1,0 +1,43 @@
+
+ .goldSmith-container {
+  width: 80%;
+  margin: 20px auto;
+
+}
+
+.goldSmith-table {
+  margin-top: 20px;
+  border-collapse: collapse;
+  
+}
+
+.goldSmith-tablehead th {
+  border: 1px solid #0b0a0a;
+  padding: 8px;
+  text-align:center;
+  background: #1DA3A3;
+  color: white;
+}
+
+.goldSmith-tablebody tr td{
+  border: 1px solid #0b0a0a;
+  padding: 8px;
+  text-align:center;
+}
+
+
+.styled-button {
+  margin: 8px;
+  padding: 8px 24px;
+  border-radius: 8px;
+  text-transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.styled-button:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+.MuiDialog-paper {
+  width: 400px !important; 
+  max-width: 90%; 
+}
