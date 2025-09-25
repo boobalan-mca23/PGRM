@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../../Assets/shared image.jpg"; 
+import logo from "../../Assets/paarvai.png";
 import "./Home.css";
 
 function Home() {
@@ -9,13 +9,13 @@ function Home() {
   return (
     <div className="luxury-container">
       <div className="logo-frame">
-        <div className="logo-inner">
+        {/* <div className="logo-inner">
           <img src={logo} alt="Logo" className="brand-logo" />
-        </div>
+        </div> */}
       </div>
 
       <div className="content-wrapper">
-        <h1 className="brand-name">AGR Jewelry</h1>
+        <h1 className="brand-name">Paarvai Jewellry</h1>
         <p className="brand-tagline">
           Timeless elegance, crafted to perfection
         </p>

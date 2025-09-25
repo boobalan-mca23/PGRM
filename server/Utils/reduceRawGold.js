@@ -26,14 +26,20 @@ const setTotalRawGold = async () => {
   }
 };
 
+   
+
 const reduceRawGold  = async (givenGold,jobCardId,goldSmithId) => {
   // stock update
+  console.log('giveGold',givenGold)
    
   if (givenGold.length >= 1) {
     for (const gold of givenGold) {
       let data = {
         goldsmithId: parseInt(goldSmithId),
         jobcardId: parseInt(jobCardId),
+        finaltouch:parseFloat(gold.finaltouch)||0,   
+        finalPurity:parseFloat(gold.finalPurity)||0,     
+        copperPurity:parseFloat(gold.copperPurity)||0, 
         weight: parseFloat(gold.weight) || 0,
         touch: parseFloat(gold.touch) || null,
         purity: parseFloat(gold.purity) || 0,
