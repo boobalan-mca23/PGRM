@@ -9,9 +9,11 @@ exports.createCopper = async (req, res) => {
       where: { id: 1 },
       update: {
         copperTotal: { increment: parseFloat(copper) },
+        remainCopper:{increment:parseFloat(copper)}
       },
       create: {
         copperTotal: parseFloat(copper),
+        remainCopper:parseFloat(copper)
       },
     });
 
@@ -37,7 +39,8 @@ exports.updateCopper = async (req, res) => {
         id: parseInt(id),
       },
       data: {
-        copperTotal:parseFloat(copper)
+        copperTotal:parseFloat(copper),
+        remainCopper:parseFloat(copper)
       },
     });
     return res

@@ -50,6 +50,8 @@ function AgrNewJobCard({
   dropDownItems,
   rawGoldStock,
   setRawGoldStock,
+  copperStock,
+  setCopperStock,
   openingBalance,
   jobCardLength,
   handleSaveJobCard,
@@ -93,7 +95,7 @@ function AgrNewJobCard({
     val // its used for set three digit after point value
   ) => (isNaN(parseFloat(val)) ? "" : parseFloat(val).toFixed(3));
 
-  const calculateFinalPurity=(p,ft)=>
+  const calculateFinalPurity = (p, ft) =>
     !isNaN(p) && !isNaN(ft)
       ? ((parseFloat(p) / parseFloat(ft)) * 100).toFixed(3)
       : "";
@@ -101,14 +103,30 @@ function AgrNewJobCard({
     !isNaN(w) && !isNaN(t)
       ? ((parseFloat(w) * parseFloat(t)) / 100).toFixed(3)
       : "";
-
+  const copperStockChange = (field,copy,oldPurity=0) => {
+    if (field==="weight"||field==="touch"||field === "finaltouch") {
+      if (copperStock.length >= 1) {
+        setCopperStock((prev) => {
+          const updated = [...prev];
+          updated[0] = {
+            ...updated[0],
+            remainCopper:(updated[0].remainCopper+oldPurity) - parseFloat(copy.copperPurity),
+          };
+          return updated;
+        });
+      }
+    }
+  };
   const handleGoldRowChange = (i, field, val) => {
     const copy = [...givenGold];
 
     // STEP 1: get old values BEFORE overwrite
     const oldTouch = copy[i].touch;
     const oldWeight = copy[i].weight;
-
+    const oldPurity=copy[i].copperPurity
+ 
+  
+   
     // STEP 2: restore old stock first
     let updateTouchStock = rawGoldStock.map((r) => ({ ...r }));
     updateTouchStock.forEach((touchItem) => {
@@ -121,6 +139,9 @@ function AgrNewJobCard({
 
     // STEP 3: overwrite new value
     copy[i][field] = val;
+
+    // copper stock change
+    
 
     // STEP 4: deduct new value from stock
     const newTouch = copy[i].touch;
@@ -139,12 +160,12 @@ function AgrNewJobCard({
       parseFloat(copy[i].weight),
       parseFloat(copy[i].touch)
     );
-     copy[i].finalPurity = calculateFinalPurity(
+    copy[i].finalPurity = calculateFinalPurity(
       parseFloat(copy[i].purity),
       parseFloat(copy[i].finaltouch)
     );
-    copy[i].copperPurity=copy[i].finalPurity-parseFloat(copy[i].weight)
-
+    copy[i].copperPurity = copy[i].finalPurity - parseFloat(copy[i].weight);
+    copperStockChange(field,copy[i],oldPurity);
     // STEP 6: set state
     setGivenGold(copy);
     setRawGoldStock(updateTouchStock);
@@ -282,28 +303,24 @@ function AgrNewJobCard({
     (sum, row) => sum + parseFloat(row.purity || 0),
     0
   );
-  const handleSave = (print = "noprint", stock =false) => {
+  const handleSave = (print = "noprint", stock = false) => {
     const goldIsTrue = goldRowValidation(givenGold, setGivenGoldErrors);
     const existStock = checkAvailabilityStock(rawGoldStock);
 
-    const doUpdate=()=>{
-       handleUpdateJobCard(
-          totalInputPurityGiven,
-          totalFinishedPurity,
-          totalReceivedPurity,
-          jobCardBalance,
-          openingBalance,
-          stock
-        );
-    }
+    const doUpdate = () => {
+      handleUpdateJobCard(
+        totalInputPurityGiven,
+        totalFinishedPurity,
+        totalReceivedPurity,
+        jobCardBalance,
+        openingBalance,
+        stock
+      );
+    };
 
-    const doSave=()=>{
-        handleSaveJobCard(
-          totalInputPurityGiven,
-          jobCardBalance,
-          openingBalance
-        );
-    }
+    const doSave = () => {
+      handleSaveJobCard(totalInputPurityGiven, jobCardBalance, openingBalance);
+    };
     if (edit) {
       const itemIsTrue = itemValidation(itemDelivery, setItemDeliveryErrors);
       const receivedIsTrue = receiveRowValidation(
@@ -320,26 +337,25 @@ function AgrNewJobCard({
       }
 
       if (print === "print") {
-           handlePrint();
+        handlePrint();
         if (isFinished === "false") {
-             doUpdate()
+          doUpdate();
         }
       } else {
-         if (stock) {
-            let isTrue = window.confirm(
-              "Are you sure you want to move the delivery item? Once it is moved to stock, this job card will be closed"
-            );
-            if (isTrue) {
-                if(itemDelivery.length===0){
-                 toast.warn("0 Items in Delivery section")
-                }else{
-                 doUpdate()
-                }
+        if (stock) {
+          let isTrue = window.confirm(
+            "Are you sure you want to move the delivery item? Once it is moved to stock, this job card will be closed"
+          );
+          if (isTrue) {
+            if (itemDelivery.length === 0) {
+              toast.warn("0 Items in Delivery section");
+            } else {
+              doUpdate();
             }
-          } else {
-             doUpdate()
           }
-       
+        } else {
+          doUpdate();
+        }
       }
     } else {
       //  this block will only run when adding a new job card
@@ -353,9 +369,9 @@ function AgrNewJobCard({
 
       if (print === "print") {
         handlePrint();
-        doSave()
+        doSave();
       } else {
-         doSave()
+        doSave();
       }
     }
   };
@@ -549,8 +565,8 @@ function AgrNewJobCard({
                         value={format(row.purity)}
                         className="input-read-only"
                       />
-                        <span className="operator">÷</span>
-                    <div>
+                      <span className="operator">÷</span>
+                      <div>
                         <input
                           disabled={row.id ? true : false}
                           type="number"
@@ -569,8 +585,8 @@ function AgrNewJobCard({
                           </span>
                         )} */}
                       </div>
-                        <span className="operator">=</span>
-                        <input
+                      <span className="operator">=</span>
+                      <input
                         type="text"
                         readOnly
                         placeholder="Final Purity"
@@ -596,7 +612,7 @@ function AgrNewJobCard({
                 </div>
 
                 <button
-                  disabled={isFinished==="true"?true:false}
+                  disabled={isFinished === "true" ? true : false}
                   onClick={() =>
                     setGivenGold([
                       ...givenGold,
@@ -647,34 +663,64 @@ function AgrNewJobCard({
             </div>
 
             <div className="touchGroup">
-              <strong>Touch Information</strong>
-              <table className="jobCardTouchTable">
-                <thead>
-                  <tr className="jobCardTouchTableRow">
-                    <th>S.No</th>
-                    <th>Touch</th>
-                    <th>Weight</th>
-                    <th>RemainWeight</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rawGoldStock.map((rawStock, index) => (
-                    <tr key={index + 1} className="jobCardTouchTableBody">
-                      <td>{index + 1}</td>
-                      <td>{rawStock.touch}</td>
-                      <td>{rawStock.weight}</td>
-                      <td
-                        style={{
-                          backgroundColor:
-                            rawStock.remainingWt < 0 ? "red" : "",
-                        }}
-                      >
-                        {rawStock.remainingWt}
-                      </td>
+              <div className="copperStock">
+                <strong>Copper Information</strong>
+                <table className="jobCardTouchTable">
+                  <thead>
+                    <tr className="jobCardTouchTableRow">
+                      <th>S.No</th>
+                      <th>Weight</th>
+                      <th>RemainCopper</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {copperStock.map((copper, index) => (
+                      <tr key={index + 1} className="jobCardTouchTableBody">
+                        <td>{index + 1}</td>
+                        <td>{copper.copperTotal}</td>
+                        <td
+                          style={{
+                            backgroundColor:
+                              copper.remainCopper< 0 ? "red" : "",
+                          }}
+                        >
+                          {(copper.remainCopper).toFixed(3)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="rawGoldStock">
+                <strong>Touch Information</strong>
+                <table className="jobCardTouchTable">
+                  <thead>
+                    <tr className="jobCardTouchTableRow">
+                      <th>S.No</th>
+                      <th>Touch</th>
+                      <th>Weight</th>
+                      <th>RemainWeight</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rawGoldStock.map((rawStock, index) => (
+                      <tr key={index + 1} className="jobCardTouchTableBody">
+                        <td>{index + 1}</td>
+                        <td>{rawStock.touch}</td>
+                        <td>{rawStock.weight}</td>
+                        <td
+                          style={{
+                            backgroundColor:
+                              rawStock.remainingWt < 0 ? "red" : "",
+                          }}
+                        >
+                          {rawStock.remainingWt}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
@@ -773,7 +819,13 @@ function AgrNewJobCard({
                           className="tableCell"
                         >
                           <select
-                            disabled={edit ?isFinished==="true"?true:false: true}
+                            disabled={
+                              edit
+                                ? isFinished === "true"
+                                  ? true
+                                  : false
+                                : true
+                            }
                             value={item?.itemName}
                             onChange={(e) =>
                               handleChangeDeliver(
@@ -804,7 +856,13 @@ function AgrNewJobCard({
                           className="tableCell"
                         >
                           <input
-                            disabled={edit ?isFinished==="true"?true:false: true}
+                            disabled={
+                              edit
+                                ? isFinished === "true"
+                                  ? true
+                                  : false
+                                : true
+                            }
                             value={item?.itemWeight ?? ""}
                             className="input itemInput"
                             type="number"
@@ -829,7 +887,13 @@ function AgrNewJobCard({
                           className="tableCell"
                         >
                           <input
-                            disabled={edit ?isFinished==="true"?true:false: true}
+                            disabled={
+                              edit
+                                ? isFinished === "true"
+                                  ? true
+                                  : false
+                                : true
+                            }
                             value={item?.count ?? ""}
                             className="input itemInput"
                             type="number"
@@ -854,7 +918,13 @@ function AgrNewJobCard({
                           className="tableCell"
                         >
                           <select
-                           disabled={edit ?isFinished==="true"?true:false: true}
+                            disabled={
+                              edit
+                                ? isFinished === "true"
+                                  ? true
+                                  : false
+                                : true
+                            }
                             value={item?.touch}
                             onChange={(e) =>
                               handleChangeDeliver(
@@ -885,7 +955,13 @@ function AgrNewJobCard({
                           className="tableCell"
                         >
                           <Button
-                            disabled={edit ?isFinished==="true"?true:false: true}
+                            disabled={
+                              edit
+                                ? isFinished === "true"
+                                  ? true
+                                  : false
+                                : true
+                            }
                             onClick={() => handlededuction(index)}
                             style={{ fontSize: "25px" }}
                           >
@@ -898,7 +974,13 @@ function AgrNewJobCard({
                           <>
                             <TableCell className="tableCell">
                               <select
-                                disabled={edit ?isFinished==="true"?true:false: true}
+                                disabled={
+                                  edit
+                                    ? isFinished === "true"
+                                      ? true
+                                      : false
+                                    : true
+                                }
                                 value={
                                   item?.deduction.length >= 1
                                     ? item?.deduction[0].type
@@ -931,7 +1013,13 @@ function AgrNewJobCard({
                             </TableCell>
                             <TableCell className="tableCell">
                               <input
-                                disabled={edit ?isFinished==="true"?true:false: true}
+                                disabled={
+                                  edit
+                                    ? isFinished === "true"
+                                      ? true
+                                      : false
+                                    : true
+                                }
                                 value={
                                   item?.deduction.length >= 1
                                     ? item.deduction[0].weight
@@ -962,7 +1050,13 @@ function AgrNewJobCard({
                               <TableCell className="tableCell">
                                 <button
                                   type="button"
-                                  disabled={edit ?isFinished==="true"?true:false: true}
+                                  disabled={
+                                    edit
+                                      ? isFinished === "true"
+                                        ? true
+                                        : false
+                                      : true
+                                  }
                                   onClick={() =>
                                     handleRemoveDeduction(index, 0)
                                   } // stone remove
@@ -1028,7 +1122,13 @@ function AgrNewJobCard({
                           className="tableCell"
                         >
                           <select
-                            disabled={edit ?isFinished==="true"?true:false: true}
+                            disabled={
+                              edit
+                                ? isFinished === "true"
+                                  ? true
+                                  : false
+                                : true
+                            }
                             value={item?.wastageValue}
                             onChange={(e) =>
                               handleChangeDeliver(
@@ -1091,7 +1191,13 @@ function AgrNewJobCard({
                             className="tableCell"
                           >
                             <button
-                              disabled={edit ?isFinished==="true"?true:false: true}
+                              disabled={
+                                edit
+                                  ? isFinished === "true"
+                                    ? true
+                                    : false
+                                  : true
+                              }
                               onClick={() => handleRemovedelivery(index)}
                               className="icon-button"
                             >
@@ -1108,7 +1214,13 @@ function AgrNewJobCard({
                             <TableRow key={i}>
                               <TableCell className="tableCell">
                                 <select
-                                  disabled={edit ?isFinished==="true"?true:false: true}
+                                  disabled={
+                                    edit
+                                      ? isFinished === "true"
+                                        ? true
+                                        : false
+                                      : true
+                                  }
                                   value={s.type}
                                   onChange={(e) =>
                                     handleDeductionChange(
@@ -1137,7 +1249,13 @@ function AgrNewJobCard({
                               </TableCell>
                               <TableCell className="tableCell">
                                 <input
-                                  disabled={edit ?isFinished==="true"?true:false: true}
+                                  disabled={
+                                    edit
+                                      ? isFinished === "true"
+                                        ? true
+                                        : false
+                                      : true
+                                  }
                                   value={s.weight ?? ""}
                                   className="input"
                                   type="number"
@@ -1180,7 +1298,7 @@ function AgrNewJobCard({
               </Table>
             </TableContainer>
             <button
-              disabled={edit ?isFinished==="true"?true:false: true} // if the job card will colse we don't edit the job card
+              disabled={edit ? (isFinished === "true" ? true : false) : true} // if the job card will colse we don't edit the job card
               onClick={() =>
                 setItemDelivery([
                   ...itemDelivery,
@@ -1221,7 +1339,9 @@ function AgrNewJobCard({
                   <strong>{i + 1})</strong>
                   <div>
                     <input
-                      disabled={edit ?isFinished==="true"?true:false: true}
+                      disabled={
+                        edit ? (isFinished === "true" ? true : false) : true
+                      }
                       type="number"
                       placeholder="Weight"
                       value={row.weight}
@@ -1240,7 +1360,9 @@ function AgrNewJobCard({
                   <span className="operator">x</span>
                   <div>
                     <select
-                      disabled={edit ?isFinished==="true"?true:false: true}
+                      disabled={
+                        edit ? (isFinished === "true" ? true : false) : true
+                      }
                       value={row.touch}
                       onChange={(e) =>
                         handleReceivedRowChange(i, "touch", e.target.value)
@@ -1261,7 +1383,9 @@ function AgrNewJobCard({
                   </div>
                   <span className="operator">=</span>
                   <input
-                    disabled={edit ?isFinished==="true"?true:false: true}
+                    disabled={
+                      edit ? (isFinished === "true" ? true : false) : true
+                    }
                     type="text"
                     readOnly
                     placeholder="Purity"
@@ -1280,7 +1404,7 @@ function AgrNewJobCard({
               ))}
             </div>
             <button
-              disabled={edit ?isFinished==="true"?true:false: true}
+              disabled={edit ? (isFinished === "true" ? true : false) : true}
               onClick={() =>
                 setReceivedMetalReturns([
                   ...receivedMetalReturns,
@@ -1340,7 +1464,7 @@ function AgrNewJobCard({
             className="jobCardSaveBtn"
             autoFocus
             onClick={() => {
-              handleSave("noprint",false);
+              handleSave("noprint", false);
             }}
             disabled={
               edit ? (isFinished === "true" || isStock ? true : false) : false
@@ -1351,7 +1475,7 @@ function AgrNewJobCard({
           <Button
             autoFocus
             onClick={() => {
-              handleSave("print",false);
+              handleSave("print", false);
             }}
             className="jobCardPrintBtn"
           >
