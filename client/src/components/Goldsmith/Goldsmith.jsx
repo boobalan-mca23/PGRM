@@ -63,7 +63,7 @@ const Goldsmith = () => {
   const [isFinished,setIsFinished]=useState("")
   const [openingBalance, setOpeningBalance] = useState(0);
   const [rawGoldStock, setRawGoldStock]=useState([])
-
+  const [copperStock,setCopperStock]=useState([])
   const [open,setOpen]=useState(false)
   const [edit, setEdit] = useState(false);
   const [lastJobCard,setLastJobCard]=useState({})
@@ -78,6 +78,16 @@ const Goldsmith = () => {
         alert(err.message);
       }
     };
+
+    const fetchCopper = async () => {
+    try {
+      const res = await axios.get(`${BACKEND_SERVER_URL}/api/copper`);
+      console.log('res copper',res.data.copper)
+      setCopperStock(res.data.copper);
+    } catch (err) {
+      console.error("Failed to fetch items", err);
+    }
+  };
 
   useEffect(() => {
     const fetchGoldsmiths = async () => {
@@ -117,6 +127,7 @@ const Goldsmith = () => {
     
     fetchWastageVal();
     fetchRawGold();
+    fetchCopper();
     fetchMasterItems();
     fetchTouch();
     fetchGoldsmiths();
@@ -347,9 +358,6 @@ const handleCloseJobcard = () => {
                         />
                       </Link>
                     </Tooltip>
-
-                   
-
                   </TableCell>
                 </TableRow>
               ))
@@ -406,6 +414,8 @@ const handleCloseJobcard = () => {
           dropDownItems={dropDownItems}
           rawGoldStock={rawGoldStock}
           setRawGoldStock={setRawGoldStock}
+          copperStock={copperStock}
+          setCopperStock={setCopperStock}
           openingBalance={openingBalance}
           name={selectedName.name}
           edit={edit}

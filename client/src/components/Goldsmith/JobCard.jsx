@@ -61,6 +61,7 @@ function JobCardDetails() {
     masterWastage:[],
   });
   const [rawGoldStock,setRawGoldStock]=useState([])
+  const [copperStock,setCopperStock]=useState([])
   const [jobCardId, setJobCardId] = useState(0);
   const [jobCardIndex, setJobCardIndex] = useState(0);
   const [open, setOpen] = useState(false);
@@ -120,6 +121,15 @@ const currentPageTotal = paginatedData.reduce(
         alert(err.message);
       }
     };
+      const fetchCopper = async () => {
+    try {
+      const res = await axios.get(`${BACKEND_SERVER_URL}/api/copper`);
+      console.log('res copper',res.data.copper)
+      setCopperStock(res.data.copper);
+    } catch (err) {
+      console.error("Failed to fetch items", err);
+    }
+  };
 
   const handleCloseJobcard = () => {
     setOpen(false);
@@ -271,6 +281,7 @@ const currentPageTotal = paginatedData.reduce(
   
 
   useEffect(() => {
+
     const fetchJobCards = async () => {
       try {
         const res = await axios.get(
@@ -285,6 +296,7 @@ const currentPageTotal = paginatedData.reduce(
         toast.error("Something went wrong.");
       }
     };
+
     const fetchMasterItems = async () => {
       const res = await axios.get(`${BACKEND_SERVER_URL}/api/master-items/`);
       setDropDownItems((prev) => ({ ...prev, masterItems: res.data }));
@@ -308,6 +320,7 @@ const currentPageTotal = paginatedData.reduce(
       };
     fetchWastageVal();
     fetchRawGold();
+    fetchCopper();
     fetchMasterItems();
     fetchTouch();
     fetchJobCards();
@@ -616,6 +629,8 @@ const currentPageTotal = paginatedData.reduce(
         setReceivedMetalReturns={setReceivedMetalReturns}
         rawGoldStock={rawGoldStock}
         setRawGoldStock={setRawGoldStock}
+        copperStock={copperStock}
+        setCopperStock={setCopperStock}
         dropDownItems={dropDownItems}
         openingBalance={openingBalance}
         name={name}
