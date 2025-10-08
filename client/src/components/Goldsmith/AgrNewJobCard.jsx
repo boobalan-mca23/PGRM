@@ -31,6 +31,7 @@ import {
   itemValidation,
   receiveRowValidation,
   checkAvailabilityStock,
+  checkAvailabilityCopper
 } from "../jobcardvalidation/JobcardValidation";
 import "../PrintJobCard/PrintJobCard";
 import PrintJobCard from "../PrintJobCard/PrintJobCard";
@@ -99,10 +100,12 @@ function AgrNewJobCard({
     !isNaN(p) && !isNaN(ft)
       ? ((parseFloat(p) / parseFloat(ft)) * 100).toFixed(3)
       : "";
+
   const calculatePurity = (w, t) =>
     !isNaN(w) && !isNaN(t)
       ? ((parseFloat(w) * parseFloat(t)) / 100).toFixed(3)
       : "";
+
   const copperStockChange = (field,copy,oldPurity=0) => {
     if (field==="weight"||field==="touch"||field === "finaltouch") {
       if (copperStock.length >= 1) {
@@ -152,7 +155,7 @@ function AgrNewJobCard({
         if (newWeight >= 0)
           touchItem.remainingWt =
             parseFloat(touchItem.remainingWt) - parseFloat(newWeight || 0);
-      }
+      } 
     });
 
     // STEP 5: recalc purity
@@ -164,7 +167,7 @@ function AgrNewJobCard({
       parseFloat(copy[i].purity),
       parseFloat(copy[i].finaltouch)
     );
-    copy[i].copperPurity = copy[i].finalPurity - parseFloat(copy[i].weight);
+    copy[i].copperPurity = copy[i].finalPurity - parseFloat(copy[i].weight)||0;
     copperStockChange(field,copy[i],oldPurity);
     // STEP 6: set state
     setGivenGold(copy);
@@ -279,6 +282,7 @@ function AgrNewJobCard({
     if (isTrue) {
       let touchValue = givenGold[i]["touch"]; //  when deleting item we need to reset the gold value
       let weight = givenGold[i]["weight"];
+      let remainPurity=givenGold[i]["copperPurity"]
 
       const updateTouchStock = rawGoldStock.map((r) => ({ ...r }));
       updateTouchStock.forEach((touchItem) => {
@@ -287,7 +291,13 @@ function AgrNewJobCard({
             parseFloat(touchItem.remainingWt) + parseFloat(weight);
         }
       });
-      console.log("updateStock in delete", updateTouchStock);
+      let copycopper=[...copperStock]
+      copycopper[0]={
+        ...copycopper[0],
+        remainCopper:copycopper[0].remainCopper+remainPurity
+      }
+
+      setCopperStock(copycopper)
       setRawGoldStock(updateTouchStock);
       const filtergold = givenGold.filter((_, index) => i !== index);
       setGivenGold(filtergold);
@@ -306,6 +316,8 @@ function AgrNewJobCard({
   const handleSave = (print = "noprint", stock = false) => {
     const goldIsTrue = goldRowValidation(givenGold, setGivenGoldErrors);
     const existStock = checkAvailabilityStock(rawGoldStock);
+    const existCopper=checkAvailabilityCopper(copperStock)
+   
 
     const doUpdate = () => {
       handleUpdateJobCard(
@@ -334,6 +346,9 @@ function AgrNewJobCard({
 
       if (existStock.stock !== "ok") {
         return toast.warn(`No Gold Stock in Touch ${existStock.touch}`);
+      }
+      if(existCopper.message){
+        return toast.warn(existCopper.message)
       }
 
       if (print === "print") {
@@ -366,7 +381,9 @@ function AgrNewJobCard({
       if (existStock.stock !== "ok") {
         return toast.warn(`No Gold Stock Touch in ${existStock.touch}`);
       }
-
+     if(existCopper.message){
+        return toast.warn(existCopper.message)
+      }
       if (print === "print") {
         handlePrint();
         doSave();
@@ -579,11 +596,11 @@ function AgrNewJobCard({
                           onWheel={(e) => e.target.blur()}
                         />
                         <br></br>
-                        {/* {givenGoldErrors[i]?.weight && (
+                      {givenGoldErrors[i]?.finaltouch && (
                           <span className="error">
-                            {givenGoldErrors[i]?.weight}
+                            {givenGoldErrors[i]?.finaltouch}
                           </span>
-                        )} */}
+                        )}
                       </div>
                       <span className="operator">=</span>
                       <input
@@ -593,13 +610,21 @@ function AgrNewJobCard({
                         value={format(row.finalPurity)}
                         className="input-read-only"
                       />
-                      <input
+                     <div>
+                       <input
                         type="text"
                         readOnly
                         placeholder="Copper Purity"
                         value={format(row.copperPurity)}
                         className="input-read-only"
                       />
+                      {givenGoldErrors[i]?.copperPurity && (
+                          <span className="error">
+                            {givenGoldErrors[i]?.copperPurity}
+                          </span>
+                        )}
+                     </div>
+                      
                       {!row.id && (
                         <MdDeleteForever
                           className="delIcon"
@@ -624,7 +649,7 @@ function AgrNewJobCard({
                   +
                 </button>
                 <div className="total-purity-container">
-                  <span className="total-purity-label">Total Purity:</span>
+                  <span className="total-purity-label">Total Weight:</span>
                   <span className="total-purity-value">
                     {format(totalInputPurityGiven)}
                   </span>
@@ -646,7 +671,7 @@ function AgrNewJobCard({
                     </span>
                   </div>
                   <div className="balance-display-row">
-                    <span className="balance-label">Total Purity:</span>
+                    <span className="balance-label">Total Weight:</span>
                     <span className="balance-value">
                       {format(totalInputPurityGiven)}
                     </span>

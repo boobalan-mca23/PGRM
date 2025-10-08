@@ -11,6 +11,14 @@ const goldRowValidation = (givenGold, setGivenGoldErrors) => {
     if (!/^\d*\.?\d*$/.test(row.touch)) {
       rowErrors.touch = "valid touch";
     }
+
+    if (row.finaltouch < 0) rowErrors.finaltouch = "negative";
+    if (!row.finaltouch) rowErrors.finaltouch = "Final Touch";
+    if (!/^\d*\.?\d*$/.test(row.finaltouch)) {
+      rowErrors.finaltouch = "vaild FinalTouch";
+    }
+    if (row.copperPurity< 0) rowErrors.copperPurity= "negative";
+    
     return rowErrors;
   });
 
@@ -81,10 +89,22 @@ const checkAvailabilityStock = (rawGoldStock) => {
   return rawGoldStock.find((item) => item.remainingWt < 0) ||{stock:"ok"};
 };
 
+const checkAvailabilityCopper=(copperStock)=>{
+  let errors={};
+  if(copperStock[0].remainCopper<0){
+    errors.message=`out of stock in ${(copperStock[0].remainCopper).toFixed(3)} copper`
+  }
+  if(copperStock[0].remainCopper>copperStock[0].copperTotal){
+    errors.message="remain weight is greater than original stock"
+  }
+  return errors;
+}
+
 export {
   goldRowValidation,
   itemValidation,
   receiveRowValidation,
-  checkAvailabilityStock
+  checkAvailabilityStock,
+  checkAvailabilityCopper
 
 };

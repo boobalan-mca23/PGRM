@@ -134,6 +134,7 @@ const currentPageTotal = paginatedData.reduce(
   const handleCloseJobcard = () => {
     setOpen(false);
     fetchRawGold();
+    fetchCopper();
     setDescription("");
     setGivenGold([ { weight: "", touch: "", purity: "" ,finaltouch:"",finalPurity:"",copperPurity:""},]);
     setItemDelivery([
@@ -189,6 +190,7 @@ const currentPageTotal = paginatedData.reduce(
         jobCardBalance: jobCardBalance,
         openingBalance: openingBalance,
       },
+      remainCopper:copperStock
    
     };
     try {
@@ -235,7 +237,7 @@ const currentPageTotal = paginatedData.reduce(
         jobCardBalance,
         openingBalance,
       },
- 
+      remainCopper:copperStock
     };
     console.log('payload',payload)
     try {

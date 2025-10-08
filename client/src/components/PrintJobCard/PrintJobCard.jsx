@@ -48,6 +48,11 @@ const PrintJobCard = React.forwardRef((props, ref) => {
                   <div style={styles.goldBox}>{item.touch}</div>
                   <div style={{ fontSize: "10px", fontWeight: "bold" }}>=</div>
                   <div style={styles.goldBox}>{item.purity}</div>
+                  <div style={{ fontSize: "10px", fontWeight: "bold" }}>÷</div>
+                  <div style={styles.goldBox}>{item.finaltouch}</div>
+                  <div style={{ fontSize: "10px", fontWeight: "bold" }}>=</div>
+                  <div style={styles.goldBox}>{item.finalPurity}</div>
+                  <div style={styles.goldBox}>{item.copperPurity}</div>
                 </div>
               ))}
             </div>
@@ -176,7 +181,7 @@ const styles = {
   },
   goldSection: {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr 1fr" /* 8 columns */,
+    gridTemplateColumns: "100%" /* 8 columns */,
     gap: "8px",
     alignItems: "center",
     padding:"5px",
