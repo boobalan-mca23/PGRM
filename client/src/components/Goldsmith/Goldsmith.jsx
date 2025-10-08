@@ -145,8 +145,9 @@ const Goldsmith = () => {
     return nameMatch || phoneMatch || addressMatch;
   });
 const handleCloseJobcard = () => {
-    
+
     fetchRawGold();
+    fetchCopper();
     setOpen(false);
     setEdit(false)
     setDescription("")
@@ -186,7 +187,7 @@ const handleCloseJobcard = () => {
         jobCardBalance,
         openingBalance
       },
-      
+       remainCopper:copperStock
     };
    
     try {

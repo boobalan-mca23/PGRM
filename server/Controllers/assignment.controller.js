@@ -226,7 +226,7 @@ const updateNextJobBalance = async (id, goldsmithId) => {
 // main controllers
 const createJobcard = async (req, res) => {
   try {
-    const { goldSmithId, description, givenGold, total } = req.body;
+    const { goldSmithId, description, givenGold, total,remainCopper } = req.body;
     console.log("createController", req.body);
     const goldsmithInfo = await prisma.goldsmith.findUnique({
       where: { id: parseInt(goldSmithId) },
@@ -260,6 +260,16 @@ const createJobcard = async (req, res) => {
       },
     });
     await reduceGold.reduceRawGold(givenGold, newJobcard.id, goldSmithId); // we need to reduce rawGold stock
+
+    await prisma.mastercopper.update({ // we need to update copper stock also
+      where:{
+        id:remainCopper[0].id
+      },
+      data:{
+        copperTotal:remainCopper[0].remainCopper,
+        remainCopper:remainCopper[0].remainCopper
+      }
+    })
     const allJobCards = await prisma.jobcard.findMany({
       where: {
         goldsmithId: parseInt(goldSmithId),
@@ -295,7 +305,7 @@ const createJobcard = async (req, res) => {
 // main controllers
 const updateJobCard = async (req, res) => {
   const { goldSmithId, jobCardId } = req.params;
-  const { description, givenGold, itemDelivery, receiveSection, total ,stock} =
+  const { description, givenGold, itemDelivery, receiveSection, total ,stock,remainCopper} =
     req.body;
   console.log("update controller", req.body);
 
@@ -362,7 +372,17 @@ const updateJobCard = async (req, res) => {
 
     // update given gold information
     await reduceGold.reduceRawGold(givenGold, jobCardId, goldSmithId);
-
+   
+     await prisma.mastercopper.update({ // we need to update copper stock also
+      where:{
+        id:remainCopper[0].id
+      },
+      data:{
+        copperTotal:remainCopper[0].remainCopper,
+        remainCopper:remainCopper[0].remainCopper
+      }
+    })
+    
     // update itemDelivery information
     await moveToItemDelivery(itemDelivery, jobCardId, goldSmithId);
 
