@@ -8,11 +8,11 @@ function Home() {
 
   return (
     <div className="luxury-container">
-      {/* <div className="logo-frame"> */}
-        {/* <div className="logo-inner">
+      <div className="logo-frame"> 
+         <div className="logo-inner">
           <img src={logo} alt="Logo" className="brand-logo" />
-        </div> */}
-      {/* </div> */}
+        </div> 
+       </div> 
 
       <div className="content-wrapper">
         <h1 className="brand-name">Paarvai Jewellry</h1>
